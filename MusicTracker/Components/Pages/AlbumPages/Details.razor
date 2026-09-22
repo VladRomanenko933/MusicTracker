@@ -1,0 +1,58 @@
+@page "/albums/details"
+@using Microsoft.EntityFrameworkCore
+@using MusicTracker.Models
+@inject IDbContextFactory<MusicTracker.Data.MusicTrackerContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Album</h2>
+    <hr />
+    @if (album is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Title</dt>
+            <dd class="col-sm-10">@album.Title</dd>
+            <dt class="col-sm-2">Review</dt>
+            <dd class="col-sm-10">@album.Review</dd>
+            <dt class="col-sm-2">DurationMinutes</dt>
+            <dd class="col-sm-10">@album.DurationMinutes</dd>
+            <dt class="col-sm-2">ReleaseDate</dt>
+            <dd class="col-sm-10">@album.ReleaseDate</dd>
+            <dt class="col-sm-2">ListenedOn</dt>
+            <dd class="col-sm-10">@album.ListenedOn</dd>
+            <dt class="col-sm-2">IsFavorite</dt>
+            <dd class="col-sm-10">@album.IsFavorite</dd>
+            <dt class="col-sm-2">Format</dt>
+            <dd class="col-sm-10">@album.Format</dd>
+        </dl>
+        <div>
+            <a href="@($"/albums/edit?id={album.Id}")">Edit</a> |
+            <a href="@($"/albums")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Album? album;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        album = await context.Albums.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (album is null)
+        {
+            NavigationManager.NotFound();
+        }
+    }
+}

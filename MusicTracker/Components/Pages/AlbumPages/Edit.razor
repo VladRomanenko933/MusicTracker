@@ -1,0 +1,124 @@
+@page "/albums/edit"
+@using Microsoft.EntityFrameworkCore
+@using MusicTracker.Models
+@inject IDbContextFactory<MusicTracker.Data.MusicTrackerContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Album</h2>
+<hr />
+@if (Album is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Album" OnValidSubmit="UpdateAlbum" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="Album.Id" value="@Album.Id" />
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title:</label>
+                    <InputText id="title" @bind-Value="Album.Title" class="form-control" />
+                    <ValidationMessage For="() => Album.Title" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="review" class="form-label">Review:</label>
+                    <InputText id="review" @bind-Value="Album.Review" class="form-control" />
+                    <ValidationMessage For="() => Album.Review" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="durationminutes" class="form-label">DurationMinutes:</label>
+                    <InputNumber id="durationminutes" @bind-Value="Album.DurationMinutes" class="form-control" />
+                    <ValidationMessage For="() => Album.DurationMinutes" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="releasedate" class="form-label">ReleaseDate:</label>
+                    <InputDate id="releasedate" @bind-Value="Album.ReleaseDate" class="form-control" />
+                    <ValidationMessage For="() => Album.ReleaseDate" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="listenedon" class="form-label">ListenedOn:</label>
+                    <InputDate id="listenedon" @bind-Value="Album.ListenedOn" class="form-control" />
+                    <ValidationMessage For="() => Album.ListenedOn" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="isfavorite" class="form-label">IsFavorite:</label>
+                    <InputCheckbox id="isfavorite" @bind-Value="Album.IsFavorite" class="form-check-input" />
+                    <ValidationMessage For="() => Album.IsFavorite" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="format" class="form-label">Format:</label>
+                    <InputSelect id="format" @bind-Value="Album.Format" class="form-control">
+                        @foreach (var format in Enum.GetValues<MusicTracker.Models.AlbumFormat>())
+                        {
+                            <option value="@format">@format</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="() => Album.Format" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/albums">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private Album? Album { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Album ??= await context.Albums.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (Album is null)
+        {
+            NavigationManager.NotFound();
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateAlbum()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Album!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!AlbumExists(Album!.Id))
+            {
+                NavigationManager.NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/albums");
+    }
+
+    private bool AlbumExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Albums.Any(e => e.Id == id);
+    }
+}

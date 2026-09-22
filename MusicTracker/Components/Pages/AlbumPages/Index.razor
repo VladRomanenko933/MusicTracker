@@ -1,0 +1,56 @@
+@page "/albums"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using MusicTracker.Models
+@using MusicTracker.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<MusicTracker.Data.MusicTrackerContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="albums/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="@context.Albums.OrderBy(a => a.Id).Skip((CurrentPage - 1) * PageSize).Take(PageSize)">
+    <PropertyColumn Property="album => album.Title" />
+    <PropertyColumn Property="album => album.Review" />
+    <PropertyColumn Property="album => album.DurationMinutes" />
+    <PropertyColumn Property="album => album.ReleaseDate" />
+    <PropertyColumn Property="album => album.ListenedOn" />
+    <PropertyColumn Property="album => album.IsFavorite" />
+    <PropertyColumn Property="album => album.Format" />
+
+    <TemplateColumn Context="album">
+        <a href="@($"albums/edit?id={album.Id}")">Edit</a> |
+        <a href="@($"albums/details?id={album.Id}")">Details</a> |
+        <a href="@($"albums/delete?id={album.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+<nav>
+    @if (CurrentPage > 1) { 
+        <a class="btn btn-outline-secondary" href="@($"albums?page={CurrentPage - 1}")">Назад</a> 
+    }
+    <span class="mx-2">Сторінка @CurrentPage</span>
+    @if (context.Albums.Count() > CurrentPage * PageSize) { 
+        <a class="btn btn-outline-secondary" href="@($"albums?page={CurrentPage + 1}")">Далі</a> 
+    }
+</nav>
+
+@code {
+    private MusicTrackerContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+
+    private const int PageSize = 10;
+    [SupplyParameterFromQuery] public int? Page { get; set; }
+    private int CurrentPage => Page is > 0 ? Page.Value : 1;
+}
