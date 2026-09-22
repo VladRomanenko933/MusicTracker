@@ -1,9 +1,15 @@
 using MusicTracker.Components;
+using Microsoft.EntityFrameworkCore;
+using MusicTracker.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents();
+
+builder.Services.AddDbContextFactory<MusicTrackerContext>(o =>
+    o.UseSqlite("Data Source=musictracker.db"));
+builder.Services.AddQuickGridEntityFrameworkAdapter();
 
 var app = builder.Build();
 
