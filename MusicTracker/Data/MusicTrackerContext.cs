@@ -12,6 +12,8 @@ public class MusicTrackerContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder b)
     {
-        // Метод пустий, в моделі Album немає типу decimal
+        b.Entity<Album>()
+            .HasIndex(x => new { x.Title, x.ReleaseDate })
+            .IsUnique();
     }
 }

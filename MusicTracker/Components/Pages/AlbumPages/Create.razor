@@ -3,6 +3,8 @@
 @using MusicTracker.Models
 @inject IDbContextFactory<MusicTracker.Data.MusicTrackerContext> DbFactory
 @inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.Data.Sqlite
 
 <PageTitle>Create</PageTitle>
 
@@ -12,6 +14,10 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
+        @if (error is not null)
+        {
+            <div class="alert alert-danger">@error</div>
+        }
         <EditForm method="post" Model="Album" OnValidSubmit="AddAlbum" FormName="create" Enhance>
             <DataAnnotationsValidator />
             <ValidationSummary class="text-danger" role="alert"/>
@@ -69,13 +75,29 @@
     private Album Album { get; set; } = default!;
 
     protected override void OnInitialized() => Album ??= new();
-
+    private string? error;
     // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
     private async Task AddAlbum()
     {
+        if (Album.ListenedOn.HasValue && Album.ListenedOn.Value < Album.ReleaseDate)
+        {
+            error = "Дата прослуховування не може бути раніше дати релізу альбому!";
+            return;
+        }
+
         using var context = DbFactory.CreateDbContext();
         context.Albums.Add(Album);
-        await context.SaveChangesAsync();
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is SqliteException { SqliteExtendedErrorCode: 2067 })
+        {
+            error = "Альбом з такою назвою і датою релізу вже існує!";
+            return;
+        }
+
         NavigationManager.NavigateTo("/albums");
     }
 }

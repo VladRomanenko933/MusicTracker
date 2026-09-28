@@ -3,6 +3,8 @@
 @using MusicTracker.Models
 @inject IDbContextFactory<MusicTracker.Data.MusicTrackerContext> DbFactory
 @inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.Data.Sqlite
 
 <PageTitle>Edit</PageTitle>
 
@@ -18,6 +20,10 @@ else
 {
     <div class="row">
         <div class="col-md-4">
+            @if (error is not null)
+            {
+                <div class="alert alert-danger">@error</div>
+            }
             <EditForm method="post" Model="Album" OnValidSubmit="UpdateAlbum" FormName="edit" Enhance>
                 <DataAnnotationsValidator />
                 <ValidationSummary role="alert"/>
@@ -92,8 +98,16 @@ else
 
     // To protect from overposting attacks, enable the specific properties you want to bind to.
     // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
-    private async Task UpdateAlbum()
+    private string? error;
+
+    public async Task UpdateAlbum()
     {
+        if (Album!.ListenedOn.HasValue && Album.ListenedOn.Value < Album.ReleaseDate)
+        {
+            error = "Дата прослуховування не може бути раніше дати релізу альбому!";
+            return;
+        }
+
         using var context = DbFactory.CreateDbContext();
         context.Attach(Album!).State = EntityState.Modified;
 
@@ -101,11 +115,17 @@ else
         {
             await context.SaveChangesAsync();
         }
+        catch (DbUpdateException ex) when (ex.InnerException is SqliteException { SqliteExtendedErrorCode: 2067 })
+        {
+            error = "Альбом з такою назвою і датою релізу вже існує!";
+            return;
+        }
         catch (DbUpdateConcurrencyException)
         {
             if (!AlbumExists(Album!.Id))
             {
-                NavigationManager.NotFound();
+                NavigationManager.NavigateTo("notfound");
+                return;
             }
             else
             {
