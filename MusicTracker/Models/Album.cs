@@ -23,4 +23,10 @@ public class Album
 
     [Required(ErrorMessage = "Оберіть формат.")]
     public AlbumFormat Format { get; set; }
+
+    public int ArtistId { get; set; }
+    public Artist? Artist { get; set; }
+    
+    public int GenreId { get; set; }
+    public Genre? Genre { get; set; }
 }

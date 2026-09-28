@@ -34,6 +34,24 @@ else
                     <ValidationMessage For="() => Album.Title" class="text-danger" />
                 </div>
                 <div class="mb-3">
+                    <label class="form-label">Артист:</label>
+                    <InputSelect @bind-Value="Album.ArtistId" class="form-select">
+                    @foreach (var a in artists)
+                    {
+                        <option value="@a.Id">@a.Name</option>
+                    }
+                    </InputSelect>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Жанр:</label>
+                    <InputSelect @bind-Value="Album.GenreId" class="form-select">
+                    @foreach (var g in genres)
+                    {
+                        <option value="@g.Id">@g.Name</option>
+                    }
+                    </InputSelect>
+                </div>
+                <div class="mb-3">
                     <label for="review" class="form-label">Review:</label>
                     <InputText id="review" @bind-Value="Album.Review" class="form-control" />
                     <ValidationMessage For="() => Album.Review" class="text-danger" />
@@ -85,10 +103,16 @@ else
     [SupplyParameterFromForm]
     private Album? Album { get; set; }
 
+    private List<Artist> artists = new();
+    private List<Genre> genres = new();
+
     protected override async Task OnInitializedAsync()
     {
         using var context = DbFactory.CreateDbContext();
-        Album ??= await context.Albums.FirstOrDefaultAsync(m => m.Id == Id);
+        Album ??= await context.Albums.Include(a => a.Artist).Include(a => a.Genre).FirstOrDefaultAsync(m => m.Id == Id);
+
+        artists = await context.Artists.OrderBy(a => a.Name).ToListAsync();
+        genres = await context.Genres.OrderBy(g => g.Name).ToListAsync();
 
         if (Album is null)
         {

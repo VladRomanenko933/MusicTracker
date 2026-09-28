@@ -1,4 +1,4 @@
-@page "/albums/details"
+@page "/artists/details"
 @using Microsoft.EntityFrameworkCore
 @using MusicTracker.Models
 @inject IDbContextFactory<MusicTracker.Data.MusicTrackerContext> DbFactory
@@ -9,25 +9,26 @@
 <h1>Details</h1>
 
 <div>
-    <h2>Album</h2>
+    <h2>Artist</h2>
     <hr />
-    @if (album is null)
+    @if (artist is null)
     {
         <p><em>Loading...</em></p>
     }
     else {
+        <dl class="row">
+            <dt class="col-sm-2">Name</dt>
+            <dd class="col-sm-10">@artist.Name</dd>
+        </dl>
         <div>
-            <AlbumCard Album="album" Caption="Деталі альбому" />
-        </div>
-        <div>
-            <a href="@($"/albums/edit?id={album.Id}")">Edit</a> |
-            <a href="@($"/albums")">Back to List</a>
+            <a href="@($"/artists/edit?id={artist.Id}")">Edit</a> |
+            <a href="@($"/artists")">Back to List</a>
         </div>
     }
 </div>
 
 @code {
-    private Album? album;
+    private Artist? artist;
 
     [SupplyParameterFromQuery]
     private int Id { get; set; }
@@ -35,9 +36,9 @@
     protected override async Task OnInitializedAsync()
     {
         using var context = DbFactory.CreateDbContext();
-        album = await context.Albums.Include(a => a.Artist).Include(a => a.Genre).FirstOrDefaultAsync(m => m.Id == Id);
+        artist = await context.Artists.FirstOrDefaultAsync(m => m.Id == Id);
 
-        if (album is null)
+        if (artist is null)
         {
             NavigationManager.NotFound();
         }

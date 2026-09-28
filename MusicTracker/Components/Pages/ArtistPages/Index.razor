@@ -1,0 +1,36 @@
+@page "/artists"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using MusicTracker.Models
+@using MusicTracker.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<MusicTracker.Data.MusicTrackerContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="artists/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Artists">
+    <PropertyColumn Property="artist => artist.Name" />
+
+    <TemplateColumn Context="artist">
+        <a href="@($"artists/edit?id={artist.Id}")">Edit</a> |
+        <a href="@($"artists/details?id={artist.Id}")">Details</a> |
+        <a href="@($"artists/delete?id={artist.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private MusicTrackerContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

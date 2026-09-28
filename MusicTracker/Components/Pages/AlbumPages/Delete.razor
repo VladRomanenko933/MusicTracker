@@ -36,7 +36,7 @@
     protected override async Task OnInitializedAsync()
     {
         using var context = DbFactory.CreateDbContext();
-        album = await context.Albums.FirstOrDefaultAsync(m => m.Id == Id);
+        album = await context.Albums.Include(a => a.Artist).Include(a => a.Genre).FirstOrDefaultAsync(m => m.Id == Id);
 
         if (album is null)
         {

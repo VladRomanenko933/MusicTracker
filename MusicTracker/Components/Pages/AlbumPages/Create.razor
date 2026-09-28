@@ -3,7 +3,6 @@
 @using MusicTracker.Models
 @inject IDbContextFactory<MusicTracker.Data.MusicTrackerContext> DbFactory
 @inject NavigationManager NavigationManager
-@using Microsoft.EntityFrameworkCore
 @using Microsoft.Data.Sqlite
 
 <PageTitle>Create</PageTitle>
@@ -25,6 +24,24 @@
                 <label for="title" class="form-label">Title:</label> 
                 <InputText id="title" @bind-Value="Album.Title" class="form-control" /> 
                 <ValidationMessage For="() => Album.Title" class="text-danger" /> 
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Артист:</label>
+                <InputSelect @bind-Value="Album.ArtistId" class="form-select">
+                @foreach (var a in artists)
+                {
+                    <option value="@a.Id">@a.Name</option>
+                }
+                </InputSelect>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Жанр:</label>
+                <InputSelect @bind-Value="Album.GenreId" class="form-select">
+                @foreach (var g in genres)
+                {
+                    <option value="@g.Id">@g.Name</option>
+                }
+                </InputSelect>
             </div>        
             <div class="mb-3">
                 <label for="review" class="form-label">Review:</label> 
@@ -99,5 +116,15 @@
         }
 
         NavigationManager.NavigateTo("/albums");
+    }
+
+    private List<Artist> artists = new();
+    private List<Genre> genres = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var db = DbFactory.CreateDbContext();
+        artists = await db.Artists.OrderBy(a => a.Name).ToListAsync();
+        genres = await db.Genres.OrderBy(g => g.Name).ToListAsync();
     }
 }

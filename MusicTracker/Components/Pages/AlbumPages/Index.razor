@@ -14,8 +14,10 @@
     <a href="albums/create">Create New</a>
 </p>
 
-<QuickGrid Class="table" Items="@context.Albums.OrderBy(a => a.Id).Skip((CurrentPage - 1) * PageSize).Take(PageSize)">
+<QuickGrid Class="table" Items="@context.Albums.Include(a => a.Artist).Include(a => a.Genre).OrderBy(a => a.Id).Skip((CurrentPage - 1) * PageSize).Take(PageSize)">
     <PropertyColumn Property="album => album.Title" />
+    <PropertyColumn Property="album => album.Artist!.Name" Title="Артист" />
+    <PropertyColumn Property="album => album.Genre!.Name" Title="Жанр" />
     <PropertyColumn Property="album => album.Review" />
     <PropertyColumn Property="album => album.DurationMinutes" />
     <PropertyColumn Property="album => album.ReleaseDate" />
