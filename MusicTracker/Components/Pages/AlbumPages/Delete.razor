@@ -17,34 +17,9 @@
         <p><em>Loading...</em></p>
     }
     else {
-        <dl class="row">
-            <dt class="col-sm-2">Title</dt>
-            <dd class="col-sm-10">@album.Title</dd>
-        </dl>
-        <dl class="row">
-            <dt class="col-sm-2">Review</dt>
-            <dd class="col-sm-10">@album.Review</dd>
-        </dl>
-        <dl class="row">
-            <dt class="col-sm-2">DurationMinutes</dt>
-            <dd class="col-sm-10">@album.DurationMinutes</dd>
-        </dl>
-        <dl class="row">
-            <dt class="col-sm-2">ReleaseDate</dt>
-            <dd class="col-sm-10">@album.ReleaseDate</dd>
-        </dl>
-        <dl class="row">
-            <dt class="col-sm-2">ListenedOn</dt>
-            <dd class="col-sm-10">@album.ListenedOn</dd>
-        </dl>
-        <dl class="row">
-            <dt class="col-sm-2">IsFavorite</dt>
-            <dd class="col-sm-10">@album.IsFavorite</dd>
-        </dl>
-        <dl class="row">
-            <dt class="col-sm-2">Format</dt>
-            <dd class="col-sm-10">@album.Format</dd>
-        </dl>
+        <div>
+            <AlbumCard Album="album" Caption="Ви дійсно хочете видалити цей альбом?" ShowDetails="false" />
+        </div>
         <EditForm method="post" Model="album" OnValidSubmit="DeleteAlbum" FormName="delete" Enhance>
             <button type="submit" class="btn btn-danger" disabled="@(album is null)">Delete</button> |
             <a href="/albums">Back to List</a>

@@ -1,0 +1,40 @@
+@if (!string.IsNullOrEmpty(Caption))
+{
+    <h5>@Caption</h5>
+}
+
+<div class="card mb-3" style="max-width: 400px;">
+    <div class="card-body">
+        <h5 class="card-title">@Album.Title</h5>
+        <h6 class="card-subtitle mb-2 text-muted">Format: @Album.Format</h6>
+        <p class="card-text">
+            <strong>Duration:</strong> @Album.DurationMinutes min <br />
+            <strong>Release Date:</strong> @Album.ReleaseDate.ToShortDateString()
+        </p>
+
+        @if (ShowDetails)
+        {
+            <hr />
+            <p class="card-text mb-1"><strong>Review:</strong> @Album.Review</p>
+            @if (Album.ListenedOn.HasValue)
+            {
+                <p class="card-text mb-1"><small class="text-muted">Listened: @Album.ListenedOn.Value.ToShortDateString()</small></p>
+            }
+            @if (Album.IsFavorite)
+            {
+                <span class="badge bg-danger mt-2">❤️ Favorite</span>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public Album Album { get; set; } = default!;
+
+    [Parameter] 
+    public string? Caption { get; set; }
+
+    [Parameter] 
+    public bool ShowDetails { get; set; } = true;
+}
