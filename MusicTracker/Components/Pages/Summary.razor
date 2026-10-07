@@ -1,0 +1,72 @@
+@page "/summary"
+@using Microsoft.EntityFrameworkCore
+@using MusicTracker.Data
+@using MusicTracker.Services
+@inject IDbContextFactory<MusicTrackerContext> DbFactory
+
+<PageTitle>Зведення</PageTitle>
+
+<h1>Статистика альбомів</h1>
+
+@if (total.Count == 0)
+{
+    <div class="alert alert-info">
+        Альбомів ще немає, тому підсумовувати нічого.
+        <a href="/albums/create">Додайте перший альбом</a>.
+    </div>
+}
+else
+{
+    <h2>За артистами</h2>
+    <table class="table mb-5">
+        <thead>
+            <tr>
+                <th>Артист</th>
+                <th>К-ть альбомів</th>
+                <th>Загальна тривалість (хв)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in byArtist)
+            {
+                <tr><td>@r.Name</td><td>@r.Count</td><td>@r.TotalMinutes</td></tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr class="table-secondary fw-bold">
+                <td>@total.Name</td><td>@total.Count</td><td>@total.TotalMinutes</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <h2>За періодом релізу</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Період</th>
+                <th>К-ть альбомів</th>
+                <th>Загальна тривалість (хв)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in byMonth)
+            {
+                <tr><td>@r.Name</td><td>@r.Count</td><td>@r.TotalMinutes</td></tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<SummaryRow> byArtist = new();
+    private List<SummaryRow> byMonth = new();
+    private SummaryRow total = new("Усього", 0, 0);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        byArtist = await SummaryCalculator.ByArtistAsync(db.Albums);
+        byMonth = await SummaryCalculator.ByMonthAsync(db.Albums);
+        total = await SummaryCalculator.TotalAsync(db.Albums);
+    }
+}
