@@ -133,6 +133,7 @@ else
         }
 
         using var context = DbFactory.CreateDbContext();
+        Album!.TitleSearch = Album.Title.ToLowerInvariant();
         context.Attach(Album!).State = EntityState.Modified;
 
         try

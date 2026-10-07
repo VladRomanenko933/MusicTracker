@@ -3,18 +3,41 @@
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using MusicTracker.Models
 @using MusicTracker.Data
-@implements IAsyncDisposable
 @inject IDbContextFactory<MusicTracker.Data.MusicTrackerContext> DbFactory
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Альбоми</PageTitle>
 
-<h1>Index</h1>
+<h1>Альбоми</h1>
 
 <p>
     <a href="albums/create">Create New</a>
 </p>
+<form method="get" class="row g-2 mb-3">
+    <div class="col">
+        <input name="search" value="@Search" class="form-control" placeholder="Пошук за назвою" />
+    </div>
+    <div class="col">
+        <select name="artistId" class="form-select">
+            <option value="">Усі артисти</option>
+            @foreach (var a in artists)
+            {
+                <option value="@a.Id" selected="@(ArtistId == a.Id)">@a.Name</option>
+            }
+        </select>
+    </div>
+    <div class="col">
+        <select name="sort" class="form-select">
+            <option value="">За назвою</option>
+            <option value="duration" selected="@(Sort == "duration")">За тривалістю</option>
+            <option value="date" selected="@(Sort == "date")">За датою релізу</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Шукати</button>
+    </div>
+</form>
 
-<QuickGrid Class="table" Items="@context.Albums.Include(a => a.Artist).Include(a => a.Genre).OrderBy(a => a.Id).Skip((CurrentPage - 1) * PageSize).Take(PageSize)">
+<QuickGrid Class="table" Items="@albums.Skip((CurrentPage - 1) * PageSize).Take(PageSize).AsQueryable()">
     <PropertyColumn Property="album => album.Title" />
     <PropertyColumn Property="album => album.Artist!.Name" Title="Артист" />
     <PropertyColumn Property="album => album.Genre!.Name" Title="Жанр" />
@@ -34,25 +57,54 @@
 
 <nav>
     @if (CurrentPage > 1) { 
-        <a class="btn btn-outline-secondary" href="@($"albums?page={CurrentPage - 1}")">Назад</a> 
+        <a class="btn btn-outline-secondary" href="@($"albums?page={CurrentPage - 1}&search={Search}&artistId={ArtistId}&sort={Sort}")">Назад</a> 
     }
     <span class="mx-2">Сторінка @CurrentPage</span>
-    @if (context.Albums.Count() > CurrentPage * PageSize) { 
-        <a class="btn btn-outline-secondary" href="@($"albums?page={CurrentPage + 1}")">Далі</a> 
+    @if (albums.Count > CurrentPage * PageSize) { 
+        <a class="btn btn-outline-secondary" href="@($"albums?page={CurrentPage + 1}&search={Search}&artistId={ArtistId}&sort={Sort}")">Далі</a> 
     }
 </nav>
 
 @code {
-    private MusicTrackerContext context = default!;
+    [SupplyParameterFromQuery] public string? Search { get; set; }
+    [SupplyParameterFromQuery] public int? ArtistId { get; set; }
+    [SupplyParameterFromQuery] public string? Sort { get; set; }
 
-    protected override void OnInitialized()
-    {
-        context = DbFactory.CreateDbContext();
-    }
-
-    public async ValueTask DisposeAsync() => await context.DisposeAsync();
-
-    private const int PageSize = 10;
     [SupplyParameterFromQuery] public int? Page { get; set; }
     private int CurrentPage => Page is > 0 ? Page.Value : 1;
+    private const int PageSize = 10;
+
+    private List<Album> albums = new();
+    private List<Artist> artists = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        artists = await db.Artists.OrderBy(a => a.Name).ToListAsync();
+        albums = await LoadAsync();
+    }
+
+    private async Task<List<Album>> LoadAsync()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var q = db.Albums.Include(x => x.Artist).Include(x => x.Genre).AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(Search))
+        {
+            var s = Search.ToLowerInvariant();
+            q = q.Where(x => x.TitleSearch.Contains(s));
+        }
+
+        if (ArtistId is int id)
+            q = q.Where(x => x.ArtistId == id);
+
+        q = Sort switch
+        {
+            "duration" => q.OrderByDescending(x => x.DurationMinutes),
+            "date" => q.OrderByDescending(x => x.ReleaseDate),
+            _ => q.OrderBy(x => x.Title)
+        };
+
+        return await q.ToListAsync();
+    }
 }

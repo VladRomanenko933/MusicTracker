@@ -9,6 +9,8 @@ public class Album
     [StringLength(100, ErrorMessage = "Назва альбому не може перевищувати 100 символів.")]
     public string Title { get; set; } = "";
 
+    public string TitleSearch { get; set; } = "";
+
     public string? Review { get; set; }
 
     [Range(1, 1000, ErrorMessage = "Тривалість альбому має бути від 1 до 1000 хвилин.")]

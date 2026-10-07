@@ -103,6 +103,7 @@
         }
 
         using var context = DbFactory.CreateDbContext();
+        Album.TitleSearch = Album.Title.ToLowerInvariant();
         context.Albums.Add(Album);
 
         try

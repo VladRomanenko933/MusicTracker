@@ -1,0 +1,31 @@
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace MusicTracker.Migrations
+{
+    /// <inheritdoc />
+    public partial class AddTitleSearch : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.AddColumn<string>(
+                name: "TitleSearch",
+                table: "Albums",
+                type: "TEXT",
+                nullable: false,
+                defaultValue: "");
+
+                migrationBuilder.Sql("UPDATE Albums SET TitleSearch = lower(Title)");
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropColumn(
+                name: "TitleSearch",
+                table: "Albums");
+        }
+    }
+}
