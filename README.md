@@ -15,3 +15,27 @@
 
 # Особливість проєкту
 Завантаження та показ зображень для записів. До кожного альбому можна буде завантажити його обкладинку (файл зображення), яка зберігатиметься на сервері та відображатиметься в каталозі та на сторінці деталей альбому.
+
+## Діаграма класів (ЛР 7)
+
+```mermaid
+classDiagram
+    class Album {
+        +int Id
+        +string Title
+        +int DurationMinutes
+        +int ArtistId
+        +int GenreId
+    }
+    class Artist {
+        +int Id
+        +string Name
+    }
+    class Genre {
+        +int Id
+        +string Name
+    }
+    
+    Artist "1" --> "*" Album
+    Genre "1" --> "*" Album
+```
