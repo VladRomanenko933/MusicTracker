@@ -6,11 +6,11 @@
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.Data.Sqlite
 
-<PageTitle>Edit</PageTitle>
+<PageTitle>Редагувати</PageTitle>
 
-<h1>Edit</h1>
+<h1>Редагувати</h1>
 
-<h2>Album</h2>
+<h2>Альбом</h2>
 <hr />
 @if (Album is null)
 {
@@ -158,7 +158,7 @@ else
             }
         }
 
-        NavigationManager.NavigateTo("/albums");
+        NavigationManager.NavigateTo("/albums?saved=true");
     }
 
     private bool AlbumExists(int id)

@@ -39,3 +39,9 @@ classDiagram
     Artist "1" --> "*" Album
     Genre "1" --> "*" Album
 ```
+
+## Скріншоти (ЛР 10)
+![Перелік альбомів](MusicTracker/docs/Album.png)
+![Статистика альбомів](MusicTracker/docs/Stats.png)
+![Жанри альбомів](MusicTracker/docs/Genres.png)
+![Список артистів](MusicTracker/docs/Artist.png)

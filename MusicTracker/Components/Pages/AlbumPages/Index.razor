@@ -5,7 +5,7 @@
 @using MusicTracker.Data
 @inject IDbContextFactory<MusicTracker.Data.MusicTrackerContext> DbFactory
 
-<PageTitle>Альбоми</PageTitle>
+<PageTitle>Альбоми - MusicTracker</PageTitle>
 
 <h1>Альбоми</h1>
 
@@ -37,40 +37,57 @@
     </div>
 </form>
 
-<QuickGrid Class="table" Items="@albums.Skip((CurrentPage - 1) * PageSize).Take(PageSize).AsQueryable()">
-    <PropertyColumn Property="album => album.Title" />
+@if (Saved)
+{
+    <div class="alert alert-success">Альбом успішно збережено!</div>
+}
+
+@if (!albums.Any())
+{
+    <div class="alert alert-info">
+        Записів ще немає.
+        <a href="/albums/create">Додайте перший альбом</a>.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <QuickGrid Class="table" Items="@albums.Skip((CurrentPage - 1) * PageSize).Take(PageSize).AsQueryable()">
+    <PropertyColumn Property="album => album.Title" Title="Назва альбому" />
     <PropertyColumn Property="album => album.Artist!.Name" Title="Артист" />
     <PropertyColumn Property="album => album.Genre!.Name" Title="Жанр" />
-    <PropertyColumn Property="album => album.Review" />
-    <PropertyColumn Property="album => album.DurationMinutes" />
-    <PropertyColumn Property="album => album.ReleaseDate" />
-    <PropertyColumn Property="album => album.ListenedOn" />
-    <PropertyColumn Property="album => album.IsFavorite" />
-    <PropertyColumn Property="album => album.Format" />
+    <PropertyColumn Property="album => album.Review" Title="Відгук" />
+    <PropertyColumn Property="album => album.DurationMinutes" Title="Тривалість (хв)" />
+    <PropertyColumn Property="album => album.ReleaseDate" Title="Дата релізу" />
+    <PropertyColumn Property="album => album.ListenedOn" Title="Дата прослуховування" />
+    <PropertyColumn Property="album => album.IsFavorite" Title="Улюблене" />
+    <PropertyColumn Property="album => album.Format" Title="Формат" />
 
     <TemplateColumn Context="album">
         <a href="@($"albums/edit?id={album.Id}")">Edit</a> |
         <a href="@($"albums/details?id={album.Id}")">Details</a> |
         <a href="@($"albums/delete?id={album.Id}")">Delete</a>
     </TemplateColumn>
-</QuickGrid>
-
-<nav>
-    @if (CurrentPage > 1) { 
-        <a class="btn btn-outline-secondary" href="@($"albums?page={CurrentPage - 1}&search={Search}&artistId={ArtistId}&sort={Sort}")">Назад</a> 
-    }
-    <span class="mx-2">Сторінка @CurrentPage</span>
-    @if (albums.Count > CurrentPage * PageSize) { 
-        <a class="btn btn-outline-secondary" href="@($"albums?page={CurrentPage + 1}&search={Search}&artistId={ArtistId}&sort={Sort}")">Далі</a> 
-    }
-</nav>
-
+        </QuickGrid>
+    </div>
+    <nav>
+        @if (CurrentPage > 1) { 
+            <a class="btn btn-outline-secondary" href="@($"albums?page={CurrentPage - 1}&search={Search}&artistId={ArtistId}&sort={Sort}")">Назад</a> 
+        }
+        <span class="mx-2">Сторінка @CurrentPage</span>
+        @if (albums.Count > CurrentPage * PageSize) { 
+            <a class="btn btn-outline-secondary" href="@($"albums?page={CurrentPage + 1}&search={Search}&artistId={ArtistId}&sort={Sort}")">Далі</a> 
+        }
+    </nav>
+}
 @code {
     [SupplyParameterFromQuery] public string? Search { get; set; }
     [SupplyParameterFromQuery] public int? ArtistId { get; set; }
     [SupplyParameterFromQuery] public string? Sort { get; set; }
-
     [SupplyParameterFromQuery] public int? Page { get; set; }
+    [SupplyParameterFromQuery(Name = "saved")]
+    public bool Saved { get; set; }
+
     private int CurrentPage => Page is > 0 ? Page.Value : 1;
     private const int PageSize = 10;
 

@@ -5,11 +5,11 @@
 @inject NavigationManager NavigationManager
 @using Microsoft.Data.Sqlite
 
-<PageTitle>Create</PageTitle>
+<PageTitle>Створити - MusicTracker</PageTitle>
 
-<h1>Create</h1>
+<h1>Створити</h1>
 
-<h2>Album</h2>
+<h2>Альбом</h2>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -116,7 +116,7 @@
             return;
         }
 
-        NavigationManager.NavigateTo("/albums");
+        NavigationManager.NavigateTo("/albums?saved=true");
     }
 
     private List<Artist> artists = new();

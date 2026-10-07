@@ -4,13 +4,13 @@
 @inject IDbContextFactory<MusicTracker.Data.MusicTrackerContext> DbFactory
 @inject NavigationManager NavigationManager
 
-<PageTitle>Delete</PageTitle>
+<PageTitle>Видалити</PageTitle>
 
-<h1>Delete</h1>
+<h1>Видалити</h1>
 
-<p>Are you sure you want to delete this?</p>
+<p>Видалити альбом «@album.Title»?</p>
 <div>
-    <h2>Album</h2>
+    <h2>Альбом</h2>
     <hr />
     @if (album is null)
     {
