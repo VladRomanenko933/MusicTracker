@@ -4,6 +4,7 @@
 @using MusicTracker.Models
 @using MusicTracker.Data
 @inject IDbContextFactory<MusicTracker.Data.MusicTrackerContext> DbFactory
+@inject IConfiguration Config
 
 <PageTitle>Альбоми - MusicTracker</PageTitle>
 
@@ -89,7 +90,7 @@ else
     public bool Saved { get; set; }
 
     private int CurrentPage => Page is > 0 ? Page.Value : 1;
-    private const int PageSize = 10;
+    private int PageSize => Config.GetValue<int>("MusicTracker:PageSize", 10);
 
     private List<Album> albums = new();
     private List<Artist> artists = new();

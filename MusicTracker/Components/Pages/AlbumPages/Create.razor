@@ -4,6 +4,7 @@
 @inject IDbContextFactory<MusicTracker.Data.MusicTrackerContext> DbFactory
 @inject NavigationManager NavigationManager
 @using Microsoft.Data.Sqlite
+@inject ILogger<Create> Logger
 
 <PageTitle>Створити - MusicTracker</PageTitle>
 
@@ -109,6 +110,7 @@
         try
         {
             await context.SaveChangesAsync();
+            Logger.LogInformation("Створено альбом {Id}", Album.Id);
         }
         catch (DbUpdateException ex) when (ex.InnerException is SqliteException { SqliteExtendedErrorCode: 2067 })
         {

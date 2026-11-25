@@ -13,13 +13,19 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddDbContextFactory<MusicTrackerContext>(o =>
-    o.UseSqlite("Data Source=musictracker.db"));
+    o.UseSqlite(builder.Configuration.GetConnectionString("Default")));
 builder.Services.AddQuickGridEntityFrameworkAdapter();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddOpenApi();
 var app = builder.Build();
+
+var factory = app.Services.GetRequiredService<IDbContextFactory<MusicTrackerContext>>();
+await using (var db = await factory.CreateDbContextAsync())
+{
+    await db.Database.MigrateAsync();
+}
 
 if (app.Environment.IsDevelopment())
 {

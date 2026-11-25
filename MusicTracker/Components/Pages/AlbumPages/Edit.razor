@@ -5,6 +5,7 @@
 @inject NavigationManager NavigationManager
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.Data.Sqlite
+@inject ILogger<Edit> Logger
 
 <PageTitle>Редагувати</PageTitle>
 
@@ -14,7 +15,10 @@
 <hr />
 @if (Album is null)
 {
-    <p><em>Loading...</em></p>
+    <div class="alert alert-warning">
+        Запис не знайдено — можливо, його видалено.
+        <a href="/albums">До переліку</a>.
+    </div>
 }
 else
 {
@@ -114,10 +118,6 @@ else
         artists = await context.Artists.OrderBy(a => a.Name).ToListAsync();
         genres = await context.Genres.OrderBy(g => g.Name).ToListAsync();
 
-        if (Album is null)
-        {
-            NavigationManager.NotFound();
-        }
     }
 
     // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -139,6 +139,7 @@ else
         try
         {
             await context.SaveChangesAsync();
+            Logger.LogInformation("Оновлено альбом {Id}", Album!.Id);
         }
         catch (DbUpdateException ex) when (ex.InnerException is SqliteException { SqliteExtendedErrorCode: 2067 })
         {

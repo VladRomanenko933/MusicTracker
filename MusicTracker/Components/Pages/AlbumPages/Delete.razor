@@ -3,6 +3,7 @@
 @using MusicTracker.Models
 @inject IDbContextFactory<MusicTracker.Data.MusicTrackerContext> DbFactory
 @inject NavigationManager NavigationManager
+@inject ILogger<Delete> Logger
 
 <PageTitle>Видалити</PageTitle>
 
@@ -14,7 +15,10 @@
     <hr />
     @if (album is null)
     {
-        <p><em>Loading...</em></p>
+        <div class="alert alert-warning">
+            Запис не знайдено — можливо, його видалено.
+            <a href="/albums">До переліку</a>.
+        </div>
     }
     else {
         <div>
@@ -38,10 +42,7 @@
         using var context = DbFactory.CreateDbContext();
         album = await context.Albums.Include(a => a.Artist).Include(a => a.Genre).FirstOrDefaultAsync(m => m.Id == Id);
 
-        if (album is null)
-        {
-            NavigationManager.NotFound();
-        }
+
     }
 
     private async Task DeleteAlbum()
@@ -49,6 +50,7 @@
         using var context = DbFactory.CreateDbContext();
         context.Albums.Remove(album!);
         await context.SaveChangesAsync();
+        Logger.LogInformation("Видалено альбом {Id}", album!.Id);
         NavigationManager.NavigateTo("/albums");
     }
 }

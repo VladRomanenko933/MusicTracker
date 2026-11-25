@@ -45,3 +45,35 @@ classDiagram
 ![Статистика альбомів](MusicTracker/docs/Stats.png)
 ![Жанри альбомів](MusicTracker/docs/Genres.png)
 ![Список артистів](MusicTracker/docs/Artist.png)
+
+## Як запустити
+
+Вимоги: встановлений **.NET 10 SDK**.
+
+1. Клонуйте репозиторій:
+   ```bash
+   git clone <URL_РЕПОЗИТОРІЮ>
+   cd <НАЗВА_КАТАЛОГУ_РЕПОЗИТОРІЮ>
+
+**Запустіть застосунок:**
+Bash
+dotnet run
+
+**Відкрийте адресу з виводу консолі у браузері.**
+
+## Контейнеризація
+Оскільки Docker у робочому середовищі не використовувався, порядок збірки та запуску контейнера:
+
+**Збірка образу з каталогу MusicTracker/MusicTracker:**
+
+Bash
+dotnet publish -c Release --os linux --arch x64 -p:ContainerImageTag=latest /t:PublishContainer
+
+**Створення тому та запуск контейнера на порту 8080 зі збереженням бази SQLite:**
+
+Bash
+docker volume create musictracker-data
+docker run --rm -p 8080:8080 \
+  -v musictracker-data:/home/app/data \
+  -e ConnectionStrings__Default="Data Source=/home/app/data/musictracker.db" \
+  musictracker:latest
