@@ -1,0 +1,13 @@
+@host = http://localhost:5239
+
+### Перелік альбомів
+GET {{host}}/api/albums
+
+### Один альбом за ідентифікатором
+GET {{host}}/api/albums/1
+
+### Неіснуючий альбом (очікуємо 404 Not Found)
+GET {{host}}/api/albums/99999
+
+### Зведення за артистами
+GET {{host}}/api/summary
