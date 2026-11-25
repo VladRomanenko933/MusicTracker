@@ -56,9 +56,9 @@ classDiagram
    cd <НАЗВА_КАТАЛОГУ_РЕПОЗИТОРІЮ>
 
 **Запустіть застосунок:**
-Bash
-dotnet run
-
+```Bash
+    dotnet run
+```
 **Відкрийте адресу з виводу консолі у браузері.**
 
 ## Контейнеризація
@@ -66,14 +66,15 @@ dotnet run
 
 **Збірка образу з каталогу MusicTracker/MusicTracker:**
 
-Bash
+```Bash
 dotnet publish -c Release --os linux --arch x64 -p:ContainerImageTag=latest /t:PublishContainer
-
+```
 **Створення тому та запуск контейнера на порту 8080 зі збереженням бази SQLite:**
 
-Bash
+```Bash
 docker volume create musictracker-data
 docker run --rm -p 8080:8080 \
   -v musictracker-data:/home/app/data \
   -e ConnectionStrings__Default="Data Source=/home/app/data/musictracker.db" \
   musictracker:latest
+  ```
